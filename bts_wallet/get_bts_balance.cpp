@@ -50,11 +50,10 @@ std::string get_pass(std::string type, std::string path)
    std::string phrase;
    std::getline( std::cin, phrase );
    fc::set_console_echo( true );
-   std::cout << "decrypting"<< std::endl;
    return phrase;
 }
 
-uint64_t do_wallet(std::string type, std::string path, std::string phrase, struct genesis_block_config& config, bool verbose)
+double do_wallet(std::string type, std::string path, std::string phrase, struct genesis_block_config& config, bool verbose)
 {
    auto keys = (type == "bitcoin" ?  bts::import_bitcoin_wallet( fc::path( path ), phrase )
             :  (type == "electrum" ? bts::import_electrum_wallet( fc::path( path ), phrase )
@@ -90,7 +89,7 @@ uint64_t do_wallet(std::string type, std::string path, std::string phrase, struc
        if( bitr != config.balances.end() ) balance += bitr->second;
       }
       if( verbose )
-         std::cout<<"balance: "<< double(balance)/COIN <<std::endl;
+         std::cout<<"running balance: "<< double(balance)/COIN <<std::endl;
    }
 
    return double(balance)/COIN;
@@ -127,7 +126,7 @@ int main( int argc, char** argv )
       verbose = true;
    }
 
-   uint64_t total = 0;
+   double total = 0;
    try {
       std::string genesis = vm["genesis"].as<std::string>();
       FC_ASSERT( fc::exists( genesis ) );
@@ -141,7 +140,7 @@ int main( int argc, char** argv )
             {
                std::string phrase = get_pass(type, path);
                try {
-                  uint64_t value = do_wallet(type, path, phrase, config, verbose);
+                  double value = do_wallet(type, path, phrase, config, verbose);
                   total += value;
                   if( verbose )
                      std::cout << type <<" wallet located at "<< path <<" has "<< value <<" BTS"<< std::endl;
